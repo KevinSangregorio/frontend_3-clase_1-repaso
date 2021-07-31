@@ -1,50 +1,50 @@
-import React, {useState} from 'react'; // No prestar atencion a esto
+import React, { useState } from 'react';
+import axios from 'axios';
 import './App.css';
 import Button from "./components/Button";
+import Listado from './components/Listado';
+
 function App() {
+  //Necesarias tantas variables??
+  let fraseBotonDefault = "Haz Click";
+  let fraseBotonUno = "Click si eres valiente";
+  let fraseBotonDos = "Prueba otra frase";
+  let fraseBotonTres = "Yo controlo el boton";
 
-
-  let fraseBoton1 = "Click si eres valiente";
-  let fraseBoton2 = "Prueba otra frase";
-  let fraseBoton3 = "Yo controlo el boton";
-  let fraseBoton = "";
-  
-  // Frases de chuck Norris, esto es manejo de estaods, tema para mas adelante
-  const [frasesChuck, setFrasesChuck] = useState([])
-
-  function getRandom(value, fraseChuck) {
-    const prevFrase = value;
-    fraseBoton = parseInt(Math.random() * 3);
-    if(fraseBoton === 0) fraseBoton = fraseBoton1; 
-    if(fraseBoton === 1) fraseBoton = fraseBoton2; 
-    if(fraseBoton === 2) fraseBoton = fraseBoton3; 
-    if (prevFrase === fraseBoton){ 
-      getRandom(prevFrase, fraseChuck); 
-    } else if (prevFrase !== fraseBoton) {
-      if(frasesChuck.length <= 5 ){
-        setFrasesChuck([...frasesChuck,fraseChuck]); // Esto ayuda actualizar valores, tema para mas adelante
-      }
-      return fraseBoton;
+// Funcion que obtiene una frase del boton, espera un arreglo... REFACTORIZAR 
+  function fraseRandom(arreglo = [], fraseActual, fraseUno, fraseDos, fraseTres) {
+    let indice = Math.floor(Math.random() * 4); // Numero random
+    let arregloDeFrases = [fraseActual, fraseUno, fraseDos];
+    arregloDeFrases.push(fraseTres);
+    while (fraseActual === arregloDeFrases[indice]) {
+      indice = Math.floor(Math.random() * 4);
     }
-    return fraseBoton;
-  } 
+    fetchData();
+    return arregloDeFrases[indice]
+  }
+
+  const [fraseChuck, setFraseChuck] = useState("") // Manera de react para crear estados
+
+  async function fetchData() {
+    const resultado = await axios.get('https://api.chucknorris.io/jokes/random')
+    setFraseChuck(resultado.data.value) // Mandera de react para actualizar estados
+  };
 
   return (
     <div className="app">
-      <Button onClick={getRandom} />
-      <div className="app__viejasFrases">
-        <h3>ULTIMAS 5 FRASES</h3>
-    {frasesChuck[0] ? <p>{frasesChuck[0]}</p> : null}
-    {frasesChuck[1] ? <p>{frasesChuck[1]}</p> : null}
-    {frasesChuck[2] ? <p>{frasesChuck[2]}</p> : null}
-    {frasesChuck[3] ? <p>{frasesChuck[3]}</p> : null}
-    {frasesChuck[4] ? <p>{frasesChuck[4]}</p> : null}
-    {frasesChuck[5] ? <p>{frasesChuck[5]}</p> : null}
-     
-    
-      </div>
+      <Button
+        defaultFrase={fraseBotonDefault}
+        fraseUno={fraseBotonUno}
+        fraseDos={fraseBotonDos}
+        fraseTres={fraseBotonTres}
+        onClick={fraseRandom}
+        fraseChuck={fraseChuck}
+      />
+      <Listado listadoDeFrases={fraseChuck} />
     </div>
-  );
+
+  )
+
 }
 
 export default App;
